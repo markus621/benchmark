@@ -1,0 +1,16 @@
+url: 'http://localhost'
+method: 'GET'
+contenttype: 'application/json'
+body: '{}'
+
+timeout: 30
+logfile: './result.log'
+
+clients: 500
+timelife: 60
+
+#proxy:
+#- host: '127.0.0.1'
+#  port: 8888
+#  login: 'test'
+#  password: 'test'

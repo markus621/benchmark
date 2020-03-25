@@ -7,6 +7,8 @@
 *.lock
 *.log
 
+*.yaml
+
 .DS_Store
 .glide/
 .idea/

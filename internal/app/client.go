@@ -25,6 +25,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -105,15 +107,23 @@ func (hc *HttpClient) dorequest(r *http.Request) {
 			ER: err,
 		}
 
+		logrus.WithError(err).Error("connection error")
 		return
 	}
 
-	io.Copy(ioutil.Discard, response.Body)
-	response.Body.Close()
+	defer response.Body.Close()
+
+	ok := 200 <= response.StatusCode && response.StatusCode < 400
+	if ok {
+		io.Copy(ioutil.Discard, response.Body)
+	} else {
+		b, _ := ioutil.ReadAll(response.Body)
+		logrus.WithField("body", string(b)).Errorf("error code: %d", response.StatusCode)
+	}
 
 	hc.c <- CHAN{
 		T:  ttl,
-		OK: 200 <= response.StatusCode && response.StatusCode < 400,
+		OK: ok,
 		ER: nil,
 	}
 }

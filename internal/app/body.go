@@ -18,18 +18,35 @@
 package app
 
 import (
-	"bytes"
 	"io"
 )
+
+type Body struct {
+	body []byte
+	off  int
+	done bool
+}
 
 func NewBody(m, t string) io.Reader {
 	switch m {
 	case "GET":
 	case "OPTION":
 	default:
-		b := &bytes.Buffer{}
-		b.WriteString(t)
-		return b
+		return &Body{body: []byte(t), off: 0, done: false}
 	}
 	return nil
+}
+
+func (b *Body) Read(p []byte) (int, error) {
+	if b.done {
+		b.done = false
+		b.off = 0
+		return 0, io.EOF
+	}
+	n := copy(p, b.body[b.off:])
+	b.off += n
+	if b.off == len(b.body) {
+		b.done = true
+	}
+	return n, nil
 }

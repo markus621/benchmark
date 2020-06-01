@@ -17,28 +17,19 @@
 
 package app
 
-import "io"
-
-type Body struct {
-	body string
-	done bool
-}
+import (
+	"bytes"
+	"io"
+)
 
 func NewBody(m, t string) io.Reader {
 	switch m {
 	case "GET":
 	case "OPTION":
 	default:
-		return &Body{body: t}
+		b := &bytes.Buffer{}
+		b.WriteString(t)
+		return b
 	}
 	return nil
-}
-
-func (b *Body) Read(p []byte) (n int, err error) {
-	if b.done {
-		return 0, io.EOF
-	}
-	p = []byte(b.body)
-	b.done = true
-	return len(p), nil
 }
